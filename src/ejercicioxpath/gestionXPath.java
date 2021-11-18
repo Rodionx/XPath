@@ -22,6 +22,7 @@ import org.w3c.dom.NodeList;
  */
 public class gestionXPath {
     Document doc = null;
+    String datos_nodo[]= null;
     public int abrir_XML_Path (File fichero){
         try {
             //Se crea un objeto DocumentBuiderFactory.
@@ -59,11 +60,45 @@ public class gestionXPath {
             //Como sé que me devuelve nodos autor, su hijo será el nodos
             //Text que contiene el valor , es decir el nombre del autor.
             for(int i = 0; i < nodeList.getLength(); i++){
-                salida = salida + "\n" + nodeList.item(i).getFirstChild().getNodeValue();
+                
+                if(nodeList.item(i).getNodeName() == "Libro"){
+                    datos_nodo = procesarLibro(nodeList.item(i));
+                    salida=salida + "\n" + "Publicado en: " + datos_nodo[0];
+                    salida=salida + "\n" + "El titulo es: " + datos_nodo[1];
+                    salida=salida + "\n" + "El autor es: " + datos_nodo[2];
+                    salida=salida + "\n --------------------------------";
+                }else{
+                    salida = salida + "\n" + nodeList.item(i).getFirstChild().getNodeValue();
+                }
             }
             return salida;
         } catch (Exception ex) {
             System.out.println("Error: " + ex.toString());
+            return null;
+        }
+    }
+    
+    private String[] procesarLibro(Node n){
+        try {
+            String datos[]= new String[3];
+            Node ntemp= null;
+            int contador = 1;
+
+            datos[0] = n.getAttributes().item(0).getNodeValue();
+
+            NodeList nodos = n.getChildNodes();
+
+            for(int i=0; i<nodos.getLength(); i++){
+                ntemp = nodos.item(i);
+
+                if(ntemp.getNodeType() == Node.ELEMENT_NODE){
+                    datos[contador] = ntemp.getFirstChild().getNodeValue();
+                    contador++;
+                }
+            }
+            return datos;
+        } catch (Exception e) {
+            System.err.println(e.toString());
             return null;
         }
     }
