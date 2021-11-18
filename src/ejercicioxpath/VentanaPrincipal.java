@@ -7,8 +7,6 @@ package ejercicioxpath;
 
 import java.io.File;
 import javax.swing.JFileChooser;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
 
 
 /**
@@ -16,6 +14,9 @@ import javax.xml.parsers.DocumentBuilderFactory;
  * @author xp
  */
 public class VentanaPrincipal extends javax.swing.JFrame {
+    
+    gestionXPath gesXPath = new gestionXPath();
+    File ficheroXML = null;
     
     public VentanaPrincipal() {
         initComponents();
@@ -32,20 +33,6 @@ public class VentanaPrincipal extends javax.swing.JFrame {
         }
         
         return fichero;
-    }
-     
-     public int abrir_XML_DOM (File fichero){
-        try {
-            DocumentBuilderFactory factory=DocumentBuilderFactory.newInstance();
-            factory.setIgnoringComments(true);
-            factory.setIgnoringElementContentWhitespace(true);
-            DocumentBuilder builder = factory.newDocumentBuilder();
-            builder.parse(fichero);
-            return 0;
-        } catch (Exception e) {
-        }
-        return -1;
-        
     }
 
     @SuppressWarnings("unchecked")
@@ -71,9 +58,14 @@ public class VentanaPrincipal extends javax.swing.JFrame {
 
         labelSeleccion.setText("Selecciona archivo XML");
 
-        jLabel2.setText("Escriba la consulta XPhat:");
+        jLabel2.setText("Escriba la consulta XPath:");
 
         botonConsulta.setText("Consultar");
+        botonConsulta.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                botonConsultaActionPerformed(evt);
+            }
+        });
 
         textAreaResultado.setColumns(20);
         textAreaResultado.setRows(5);
@@ -123,8 +115,24 @@ public class VentanaPrincipal extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void botonabrirXMLActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_botonabrirXMLActionPerformed
-        seleccionarFichero();
+        ficheroXML = seleccionarFichero();
+        if(ficheroXML == null){
+               this.labelSeleccion.setText("Vuelve a seleccionar el fichero");
+           }
+           else{
+               if(gesXPath.abrir_XML_Path(ficheroXML) == -1){
+                   this.labelSeleccion.setText("Error al crear el objeto XPath");
+               }else{
+                   this.labelSeleccion.setText("Objeto XPath creado");
+               }
+               
+           }
     }//GEN-LAST:event_botonabrirXMLActionPerformed
+
+    private void botonConsultaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_botonConsultaActionPerformed
+        
+        textAreaResultado.setText(gesXPath.EjecutaXPath(ficheroXML.getName(),fieldConsulta.getText()));
+    }//GEN-LAST:event_botonConsultaActionPerformed
 
     /**
      * @param args the command line arguments

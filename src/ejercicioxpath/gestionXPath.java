@@ -6,12 +6,14 @@
 package ejercicioxpath;
 
 import java.io.File;
+import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpression;
 import javax.xml.xpath.XPathFactory;
 import org.w3c.dom.Document;
+import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 /**
@@ -19,20 +21,39 @@ import org.w3c.dom.NodeList;
  * @author xp
  */
 public class gestionXPath {
-    public int EjecutaXPath(){
+    Document doc = null;
+    public int abrir_XML_Path (File fichero){
         try {
-            //Declaramos el String salida para usarlo despues en cualquier funcion.
+            //Se crea un objeto DocumentBuiderFactory.
+            DocumentBuilderFactory factory=DocumentBuilderFactory.newInstance();
+            //Indica que el modelo DOM no debe contemplar los comentarios
+            //que tenga el XML
+            factory.setIgnoringComments(true);
+            //Ignora los espacios en blanco que tenga el documento
+            factory.setIgnoringElementContentWhitespace(true);
+            //Se crea un objeto DocumentBuilder para cargar en él la
+            //estructura de árbol DOM a partir del XML seleccionado.
+            DocumentBuilder builder = factory.newDocumentBuilder();
+            //Interpreta (parsear) el documento XML (file) y genera el
+            //DOM equivalente.
+            doc= builder.parse(fichero);
+            //Ahora doc apunta al árbol DOM listo para ser recorrido
+            return 0;
+        } catch (Exception e) {
+        }
+        return -1;
+        
+    }
+    public String EjecutaXPath(String nombre, String busqueda){
+        try {    
+            //Creamos un string vacio llamado salida.
             String salida = "";
-            //Crea un objeto DocumentBuilderFactory para el DOM(JAXP)
-            DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-            //Crear un árbol DOM (parsear) con el archivo LibrosXML.xml
-            Document XMLDoc = factory.newDocumentBuilder().parse(new File("Libros.xml"));
             //Crea el objeto XPath
             XPath xPath = XPathFactory.newInstance().newXPath();
             //Crea un XPathExpresion con la consulta deseada
-            XPathExpression exp = xPath.compile("/Libros/*/Autor");
+            XPathExpression exp = xPath.compile(busqueda);
             //Ejecuta la consulta indicando que se ejecute sobre el DOM y que devolverá el resultado como una lista de nodos.
-            Object result = exp.evaluate(XMLDoc, XPathConstants.NODESET);
+            Object result = exp.evaluate(doc, XPathConstants.NODESET);
             NodeList nodeList = (NodeList) result;
             //Ahora recorre la lista para sacar los resultados.
             //Como sé que me devuelve nodos autor, su hijo será el nodos
@@ -40,11 +61,10 @@ public class gestionXPath {
             for(int i = 0; i < nodeList.getLength(); i++){
                 salida = salida + "\n" + nodeList.item(i).getFirstChild().getNodeValue();
             }
-            System.out.println(salida);
-            return 0;
+            return salida;
         } catch (Exception ex) {
             System.out.println("Error: " + ex.toString());
-            return -1;
+            return null;
         }
     }
 }
